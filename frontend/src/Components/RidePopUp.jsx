@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import { CaptainDataContext } from '../context/CaptainContext'
 
 const RidePopUp = (props) => {
+  const { socket } = useContext(CaptainDataContext) || {};
   return (
     <div>
       {/* Close Button */}
@@ -68,6 +70,19 @@ const RidePopUp = (props) => {
 
         <button
           onClick={() => {
+            // Emit acceptRide to server so it can notify the user
+            try {
+              const ride = { /* minimal ride info; in real app include rideId */ };
+              const userId = 'anonymous';
+              if (socket && socket.connected) {
+                socket.emit('acceptRide', { rideId: ride.id || null, userId, captain: { id: socket.id, name: 'Captain' } });
+                // Also emit a sample driverLocation once
+                socket.emit('driverLocation', { userId, location: { lat: 28.6139, lng: 77.2090 } });
+              }
+            } catch (e) {
+              console.error('emit acceptRide failed', e);
+            }
+
             props.setConfirmRidePopUpPanel(true)
             props.setRidePopUpPanel(false)
           }}
