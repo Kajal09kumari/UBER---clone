@@ -40,9 +40,9 @@ module.exports.estimateFare = async (req, res, next) => {
       return res.status(400).json({ message: 'pickup and destination coordinates are required' });
     }
 
-    // Haversine formula
+    // Haversine formula to calculate distance
     const toRad = (deg) => (deg * Math.PI) / 180;
-    const R = 6371; // Earth radius km
+    const R = 6371; // Earth radius in km
     const dLat = toRad(destination.lat - pickup.lat);
     const dLon = toRad(destination.lng - pickup.lng);
     const a =
@@ -53,13 +53,17 @@ module.exports.estimateFare = async (req, res, next) => {
     const distanceKm = R * c;
 
     // Fare calculation: base fare + per km rate, with minimum fare
-    const baseFare = 40; // currency units
-    const perKm = 10; // per km
+    const baseFare = 40; // base fare in currency units
+    const perKm = 10; // rate per km
     const rawFare = baseFare + distanceKm * perKm;
-    const fare = Math.max(rawFare, 50); // ensure minimum fare (50)
+    const fare = Math.max(rawFare, 50); // minimum fare of 50
 
-    return res.status(200).json({ distanceKm: Number(distanceKm.toFixed(3)), fare: Number(fare.toFixed(2)) });
+    return res.status(200).json({ 
+      distanceKm: Number(distanceKm.toFixed(2)), 
+      fare: Number(fare.toFixed(2)) 
+    });
   } catch (err) {
     next(err);
   }
 };
+

@@ -9,12 +9,16 @@ const ConfirmRide = (props) => {
       const pickup = props.selectedLocations?.pickup;
       const destination = props.selectedLocations?.destination;
       if (!pickup || !destination) return;
+      
       setEstimating(true);
       try {
         const res = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:3000'}/rides/estimate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pickup: { lat: pickup.lat, lng: pickup.lng }, destination: { lat: destination.lat, lng: destination.lng } })
+          body: JSON.stringify({ 
+            pickup: { lat: pickup.lat, lng: pickup.lng }, 
+            destination: { lat: destination.lat, lng: destination.lng } 
+          })
         });
         if (res.ok) {
           const data = await res.json();
@@ -30,6 +34,7 @@ const ConfirmRide = (props) => {
     };
     fetchEstimate();
   }, [props.selectedLocations]);
+
   return (
     <div>
       <h5
@@ -72,10 +77,10 @@ const ConfirmRide = (props) => {
             <i className="text-lg ri-currency-line"></i>
             <div>
               <h3 className='text-lg font-medium'>
-                {estimating ? 'Estimating...' : estimate ? `₹${estimate.fare}` : '—'}
+                {estimating ? 'Estimating...' : estimate ? `₹${estimate.fare}` : '₹—'}
               </h3>
               <p className='text-sm -mt-1 text-gray-600'>
-                {estimate ? `${estimate.distanceKm} km • Cash` : 'Price estimate'}
+                {estimate ? `${estimate.distanceKm} km • Cash` : 'Calculating fare...'}
               </p>
             </div>
           </div>
