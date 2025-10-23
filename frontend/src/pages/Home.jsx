@@ -284,6 +284,7 @@ const Home = () => {
         <ConfirmRide
           setConfirmRidePanel={setConfirmRidePanel}
           setVehicleFound={setVehicleFound}
+          selectedLocations={selectedLocations}
         />
       </div>
 
