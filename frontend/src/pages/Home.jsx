@@ -11,6 +11,8 @@ import LookingForDriver from '../Components/LookingForDriver';
 import WaitingForDriver from '../Components/WaitingForDriver';
 import Map from '../Components/Map';
 import { searchLocation } from '../utils/geocoding';
+import Input from '../Components/ui/Input';
+import Button from '../Components/ui/Button';
 
 const Home = () => {
   const [pickupText, setPickupText] = useState(''); // readable address shown in input
@@ -194,12 +196,13 @@ const Home = () => {
           <div className="absolute top-0 left-0 w-full p-3 flex items-center justify-between z-20">
             <img src={appLogo2} alt="Safar Logo" className="w-24" />
             <div className="flex items-center gap-2">
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={useMyLocation}
-                className="px-3 py-1 text-sm bg-white border rounded-md"
               >
                 Use my location
-              </button>
+              </Button>
               <Link
                 to="/login"
                 className="h-8 w-8 flex items-center justify-center rounded-md border border-gray-300 bg-white"
@@ -227,26 +230,30 @@ const Home = () => {
           <div className="line absolute h-16 w-1 top-[42%] left-10 bg-gray-700 rounded-full"></div>
 
           {/* Pickup input (click to open search panel and edit) */}
-          <input
-            onClick={() => openSearchPanelFor('pickup')}
-            value={pickupText}
-            onChange={(e) => setPickupText(e.target.value)}
-            onBlur={() => forwardGeocode(pickupText, 'pickup')}
-            className="bg-[#eee] px-12 py-2 text-lg rounded-lg w-full mt-1"
-            type="text"
-            placeholder="Add a pick-up location"
-          />
+          <div className="mt-1">
+            <Input
+              onClick={() => openSearchPanelFor('pickup')}
+              value={pickupText}
+              onChange={(e) => setPickupText(e.target.value)}
+              onBlur={() => forwardGeocode(pickupText, 'pickup')}
+              type="text"
+              placeholder="Add a pick-up location"
+              className="px-12 text-lg"
+            />
+          </div>
 
           {/* Destination input (click to open search panel and edit) */}
-          <input
-            onClick={() => openSearchPanelFor('destination')}
-            value={destinationText}
-            onChange={(e) => setDestinationText(e.target.value)}
-            onBlur={() => forwardGeocode(destinationText, 'destination')}
-            className="bg-[#eee] px-12 py-2 text-lg rounded-lg w-full mt-1"
-            type="text"
-            placeholder="Enter your destination"
-          />
+          <div className="mt-1">
+            <Input
+              onClick={() => openSearchPanelFor('destination')}
+              value={destinationText}
+              onChange={(e) => setDestinationText(e.target.value)}
+              onBlur={() => forwardGeocode(destinationText, 'destination')}
+              type="text"
+              placeholder="Enter your destination"
+              className="px-12 text-lg"
+            />
+          </div>
         </form>
       </div>
 

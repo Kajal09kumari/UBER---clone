@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import Button from './ui/Button'
 
 const ConfirmRide = (props) => {
   const [estimate, setEstimate] = useState(null);
@@ -86,7 +87,11 @@ const ConfirmRide = (props) => {
           </div>
         </div>
 
-        <button onClick={async ()=>{
+        <Button
+          variant="primary"
+          size="lg"
+          fullWidth
+          onClick={async ()=>{
           // Send ride request to backend
           try {
             const body = {
@@ -110,10 +115,10 @@ const ConfirmRide = (props) => {
           props.setVehicleFound(true)
           props.setConfirmRidePanel(false)
         }}
-          className='w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg '
+          className='mt-5'
         >
           Confirm
-        </button>
+        </Button>
       </div>
     </div>
   );

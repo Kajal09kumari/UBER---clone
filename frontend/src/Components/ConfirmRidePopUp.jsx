@@ -1,5 +1,7 @@
-import React,{useState} from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
+import Input from './ui/Input'
+import Button from './ui/Button'
 
 const ConfirmRidePopUp = (props) => {
     const [otp, setOtp] = useState('')
@@ -65,21 +67,29 @@ const ConfirmRidePopUp = (props) => {
         <form onSubmit={(e)=>{
             submitHandler(e)
         }}>
-        <input value={otp} onChange={(e)=>setOtp(e.target.value)} type="text" placeholder='Enter OTP' className='w-full px-12 py-2 font-mono text-lg rounded-lg mt-3 bg-[#eee]'/>
+        <Input 
+          value={otp} 
+          onChange={(e)=>setOtp(e.target.value)} 
+          type="text" 
+          placeholder='Enter OTP' 
+          className='font-mono text-lg mt-3'
+        />
            <Link
             to='/captain-riding'
           className='w-full flex justify-center text-lg mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg'
            >
           Confirm
           </Link>
-          <button
-          onClick={() => {props.setConfirmRidePopUpPanel(false)
+          <Button
+            variant="secondary"
+            size="lg"
+            fullWidth
+            onClick={() => {props.setConfirmRidePopUpPanel(false)
              props.setRidePopUpPanel(false)}}
-
-          className='w-full mt-5 bg-gray-300 text-lg text-gray-700 font-semibold p-3 rounded-lg'
+            className='mt-5'
           >
-          Cancel
-          </button>
+            Cancel
+          </Button>
         </form>
         </div>
       </div>

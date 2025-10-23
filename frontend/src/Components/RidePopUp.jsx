@@ -1,5 +1,6 @@
 import React, { useContext } from 'react'
 import { CaptainDataContext } from '../context/CaptainContext'
+import Button from './ui/Button'
 
 const RidePopUp = (props) => {
   const { socket } = useContext(CaptainDataContext) || {};
@@ -60,38 +61,38 @@ const RidePopUp = (props) => {
         </div>
 
         {/* Actions */}
-        <div className='flex items-center justify-between w-full mt-5'>
-            <button
-          onClick={() => props.setRidePopUpPanel(false)}
-          className=' bg-gray-300 text-gray-700 font-semibold p-3 px-10 rounded-lg'
-        >
-          Ignore
-        </button>        
+        <div className='flex items-center justify-between w-full mt-5 gap-3'>
+          <Button
+            variant="secondary"
+            size="lg"
+            onClick={() => props.setRidePopUpPanel(false)}
+          >
+            Ignore
+          </Button>
 
-        <button
-          onClick={() => {
-            // Emit acceptRide to server so it can notify the user
-            try {
-              const ride = { /* minimal ride info; in real app include rideId */ };
-              const userId = 'anonymous';
-              if (socket && socket.connected) {
-                socket.emit('acceptRide', { rideId: ride.id || null, userId, captain: { id: socket.id, name: 'Captain' } });
-                // Also emit a sample driverLocation once
-                socket.emit('driverLocation', { userId, location: { lat: 28.6139, lng: 77.2090 } });
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={() => {
+              // Emit acceptRide to server so it can notify the user
+              try {
+                const ride = { /* minimal ride info; in real app include rideId */ };
+                const userId = 'anonymous';
+                if (socket && socket.connected) {
+                  socket.emit('acceptRide', { rideId: ride.id || null, userId, captain: { id: socket.id, name: 'Captain' } });
+                  // Also emit a sample driverLocation once
+                  socket.emit('driverLocation', { userId, location: { lat: 28.6139, lng: 77.2090 } });
+                }
+              } catch (e) {
+                console.error('emit acceptRide failed', e);
               }
-            } catch (e) {
-              console.error('emit acceptRide failed', e);
-            }
 
-            props.setConfirmRidePopUpPanel(true)
-            props.setRidePopUpPanel(false)
-          }}
-          className='  bg-green-600 text-white font-semibold p-3 px-10 rounded-lg'
-        >
-          Accept
-        </button>
-
-
+              props.setConfirmRidePopUpPanel(true)
+              props.setRidePopUpPanel(false)
+            }}
+          >
+            Accept
+          </Button>
         </div>
       </div>
     </div>
