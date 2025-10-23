@@ -30,3 +30,36 @@ module.exports.requestRide = async (req, res, next) => {
     next(err);
   }
 };
+
+// POST /rides/estimate
+// body: { pickup: { lat, lng }, destination: { lat, lng } }
+module.exports.estimateFare = async (req, res, next) => {
+  try {
+    const { pickup, destination } = req.body;
+    if (!pickup || !destination || !pickup.lat || !pickup.lng || !destination.lat || !destination.lng) {
+      return res.status(400).json({ message: 'pickup and destination coordinates are required' });
+    }
+
+    // Haversine formula
+    const toRad = (deg) => (deg * Math.PI) / 180;
+    const R = 6371; // Earth radius km
+    const dLat = toRad(destination.lat - pickup.lat);
+    const dLon = toRad(destination.lng - pickup.lng);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(pickup.lat)) * Math.cos(toRad(destination.lat)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distanceKm = R * c;
+
+    // Fare calculation: base fare + per km rate, with minimum fare
+    const baseFare = 40; // currency units
+    const perKm = 10; // per km
+    const rawFare = baseFare + distanceKm * perKm;
+    const fare = Math.max(rawFare, 50); // ensure minimum fare (50)
+
+    return res.status(200).json({ distanceKm: Number(distanceKm.toFixed(3)), fare: Number(fare.toFixed(2)) });
+  } catch (err) {
+    next(err);
+  }
+};
