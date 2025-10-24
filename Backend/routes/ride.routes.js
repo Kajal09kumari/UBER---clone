@@ -13,4 +13,6 @@ router.post(
   rideController.requestRide
 );
 
+router.post('/estimate', rideController.estimateFare);
+
 module.exports = router;

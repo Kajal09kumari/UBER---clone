@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import Button from '../Components/ui/Button'
 
 const Riding = () => {
   return (
@@ -55,9 +56,9 @@ const Riding = () => {
           </div>
         </div>
 
-        <button className='w-full mt-4 bg-green-600 text-white font-semibold p-3 rounded-lg'>
+        <Button variant="primary" size="lg" fullWidth className='mt-4'>
           Make a Payment
-        </button>
+        </Button>
       </div>
     </div>
   );

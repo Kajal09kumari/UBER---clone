@@ -1,6 +1,41 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import Button from './ui/Button'
 
 const ConfirmRide = (props) => {
+  const [estimate, setEstimate] = useState(null);
+  const [estimating, setEstimating] = useState(false);
+
+  useEffect(() => {
+    const fetchEstimate = async () => {
+      const pickup = props.selectedLocations?.pickup;
+      const destination = props.selectedLocations?.destination;
+      if (!pickup || !destination) return;
+      
+      setEstimating(true);
+      try {
+        const res = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:3000'}/rides/estimate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            pickup: { lat: pickup.lat, lng: pickup.lng }, 
+            destination: { lat: destination.lat, lng: destination.lng } 
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setEstimate(data);
+        } else {
+          console.error('Estimate failed', await res.text());
+        }
+      } catch (e) {
+        console.error('Estimate error', e);
+      } finally {
+        setEstimating(false);
+      }
+    };
+    fetchEstimate();
+  }, [props.selectedLocations]);
+
   return (
     <div>
       <h5
@@ -42,13 +77,21 @@ const ConfirmRide = (props) => {
           <div className='flex items-center gap-5 p-3'>
             <i className="text-lg ri-currency-line"></i>
             <div>
-              <h3 className='text-lg font-medium'>₹199</h3>
-              <p className='text-sm -mt-1 text-gray-600'>Cash</p>
+              <h3 className='text-lg font-medium'>
+                {estimating ? 'Estimating...' : estimate ? `₹${estimate.fare}` : '₹—'}
+              </h3>
+              <p className='text-sm -mt-1 text-gray-600'>
+                {estimate ? `${estimate.distanceKm} km • Cash` : 'Calculating fare...'}
+              </p>
             </div>
           </div>
         </div>
 
-        <button onClick={async ()=>{
+        <Button
+          variant="primary"
+          size="lg"
+          fullWidth
+          onClick={async ()=>{
           // Send ride request to backend
           try {
             const body = {
@@ -72,10 +115,10 @@ const ConfirmRide = (props) => {
           props.setVehicleFound(true)
           props.setConfirmRidePanel(false)
         }}
-          className='w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg '
+          className='mt-5'
         >
           Confirm
-        </button>
+        </Button>
       </div>
     </div>
   );
