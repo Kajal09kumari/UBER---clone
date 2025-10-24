@@ -1,0 +1,28 @@
+* [33m9a3e38f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdevelopment[m[33m, [m[1;31morigin/development[m[33m)[m my-commit
+*   [33m95a0a17[m Merge pull request #7 from AseemPrasad/fix/issue#3
+[32m|[m[33m\[m  
+[32m|[m * [33m08631e6[m created a  way for them to go online to receive requests and offline when they stop driving
+* [33m|[m   [33mb059977[m Merge pull request #5 from ayush-patel1/feature-socketio-realtime
+[33m|[m[35m\[m [33m\[m  
+[33m|[m [35m|[m[33m/[m  
+[33m|[m[33m/[m[35m|[m   
+[33m|[m * [33m17de7d3[m Added real-time updates with Socket.io for ride requests and driver tracking
+[33m|[m[33m/[m  
+* [33me73e0a0[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m Create README.md for Uber Clone project
+* [33m0dff8c0[m map added and some minor changes
+* [33m4145960[m captain UI complete
+* [33m7ebdde1[m User UI Complete
+* [33m5462c34[m login and signup page frontend done
+* [33mcd76e15[m update README.md with API documentation for user registration and login endpoints
+* [33m0c28388[m captain authentication done
+* [33m1172fe4[m register captain done
+* [33m6f04879[m user authentication done
+* [33m0b6eeca[m user login done
+*   [33mc953734[m Merge branch 'main' of https://github.com/Kajal09kumari/UBER---clone
+[36m|[m[1;31m\[m  
+[36m|[m * [33ma8ea048[m Delete Backend/.env
+* [1;31m|[m [33me13eecf[m  user registration done
+[1;31m|[m[1;31m/[m  
+* [33mf0e31ef[m Add mongoose for database connection and implement connectToDb function
+* [33me8832da[m Add .gitignore and fix formatting in app.js
+* [33ma5f8ede[m first commit
