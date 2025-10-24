@@ -48,27 +48,7 @@ const ConfirmRide = (props) => {
           </div>
         </div>
 
-        <button onClick={async ()=>{
-          // Send ride request to backend
-          try {
-            const body = {
-              userId: localStorage.getItem('userId') || 'anonymous',
-              pickup: props.selectedLocations?.pickup || { lat: 0, lng: 0, text: '' },
-              destination: props.selectedLocations?.destination || { lat: 0, lng: 0, text: '' },
-              passengerCount: 1,
-            };
-            const res = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:3000'}/rides/request`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(body),
-            });
-            if (!res.ok) {
-              console.error('Failed to request ride', await res.text());
-            }
-          } catch (e) {
-            console.error('Ride request failed', e);
-          }
-
+        <button onClick={()=>{
           props.setVehicleFound(true)
           props.setConfirmRidePanel(false)
         }}
