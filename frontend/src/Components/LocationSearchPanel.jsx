@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { getLocationSuggestions } from '../utils/geocoding';
+import React, { useState, useEffect } from 'react'; // Added implicit import for hooks
 
 const LocationSearchPanel = ({ 
   activeField, 
@@ -13,12 +12,10 @@ const LocationSearchPanel = ({
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Update local query when initialText changes
   useEffect(() => {
     setQuery(initialText || '');
   }, [initialText]);
 
-  // Fetch suggestions when query changes
   useEffect(() => {
     if (!query || query.length < 3) {
       setSuggestions([]);
@@ -56,25 +53,23 @@ const LocationSearchPanel = ({
     });
     setPanelOpen(false);
 
-    // If user was picking destination, open vehicle panel after select
     if (activeField === 'destination') {
       setTimeout(() => setVehiclePanel(true), 400);
     }
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-4">
-      <h4 className="text-lg font-semibold mb-3">
+    <div className="w-full max-w-md mx-auto p-6 bg-white rounded-xl shadow-lg">
+      <h4 className="text-xl font-semibold text-gray-900 mb-4">
         {activeField === 'pickup' ? 'Select a pickup location' : 'Select a destination'}
       </h4>
 
-      {/* Search input */}
       <input
         type="text"
         value={query}
         onChange={handleInputChange}
         placeholder={activeField === 'pickup' ? 'Search pickup locations' : 'Search destinations'}
-        className="w-full p-3 border rounded-lg mb-3"
+        className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-[#138808] focus:border-transparent"
         autoFocus
       />
 
@@ -89,9 +84,9 @@ const LocationSearchPanel = ({
           <button
             key={s.id}
             onClick={() => handleSuggestionSelect(s)}
-            className="w-full text-left p-3 border rounded-lg hover:bg-gray-50"
+            className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200"
           >
-            <i className="ri-map-pin-fill mr-2 text-gray-600"></i>
+            <i className="ri-map-pin-fill mr-3 text-[#138808]"></i>
             {s.name}
           </button>
         ))}
@@ -100,4 +95,4 @@ const LocationSearchPanel = ({
   );
 };
 
-export default LocationSearchPanel;
+export default LocationSearchPanel; // Added this line to export the component

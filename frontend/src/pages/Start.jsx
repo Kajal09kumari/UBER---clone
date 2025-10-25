@@ -1,7 +1,7 @@
-import React from 'react'
-import { Link } from 'react-router-dom' // <-- import Link
-import appLogo from '../assets/app logo.png'
-import appimage from '../assets/app image.png'
+import React from 'react';
+import { Link } from 'react-router-dom';
+import appLogo from '../assets/app logo.png';
+import appimage from '../assets/app image.png';
 
 const Start = () => {
   return (
@@ -14,27 +14,20 @@ const Start = () => {
         backgroundPosition: 'center top -60px',
       }}
     >
-      {/* Top Logo */}
-      <div className="pt-6 px-6">
-        <img src={appLogo} alt="Safar Logo" className="w-16" />
+      <div className="pt-8 px-6">
+        <img src={appLogo} alt="Safar Logo" className="w-20" />
       </div>
-
-      {/* Bottom Section */}
-      <div className="bg-white p-6 rounded-t-2xl shadow-lg">
-        <h2 className="text-2xl font-bold text-center mb-4">
-          Get Started with Safar
-        </h2>
-
-        {/* Link to login */}
+      <div className="bg-white/90 backdrop-blur-md p-6 rounded-t-2xl shadow-lg">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Get Started with Safar</h2>
         <Link
           to="/login"
-          className="w-full block bg-black text-white text-center py-3 rounded text-lg font-medium"
+          className="w-full block bg-[#138808] text-white text-center py-3 rounded-lg text-lg font-semibold hover:bg-green-700 transition-colors shadow-md"
         >
-          continue
+          Continue
         </Link>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Start
+export default Start;
