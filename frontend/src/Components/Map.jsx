@@ -1,31 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Polyline, ZoomControl } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import { Icon, LatLngBounds } from 'leaflet';
-
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-
-// Fix default marker icons (Leaflet bundling issue in Vite/CRA)
-delete Icon.Default.prototype._getIconUrl;
-Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-});
-
-// Map click capture
-const ClickCapture = ({ onLocationSelect }) => {
-  useMapEvents({
-    click: (e) => {
-      if (onLocationSelect) {
-        onLocationSelect({ lat: e.latlng.lat, lng: e.latlng.lng });
-      }
-    },
-  });
-  return null;
-};
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, ZoomControl } from 'react-leaflet';
+import { LatLngBounds } from 'leaflet'; // Ensure Leaflet is installed
+import ClickCapture from './ClickCapture'; // Adjust path as needed
 
 const Map = ({
   center = [28.6139, 77.2090],
@@ -38,7 +14,6 @@ const Map = ({
   const [durationMin, setDurationMin] = useState(null);
   const mapRef = useRef(null);
 
-  // Fetch route + distance/duration when two markers available
   useEffect(() => {
     const valid = markers.filter(Boolean);
     if (valid.length !== 2) {
@@ -60,8 +35,8 @@ const Map = ({
 
         const route = data?.routes?.[0];
         if (route) {
-          setDistanceKm(route.distance / 1000); // km
-          setDurationMin(route.duration / 60); // min
+          setDistanceKm(route.distance / 1000);
+          setDurationMin(route.duration / 60);
         } else {
           setDistanceKm(null);
           setDurationMin(null);
@@ -75,7 +50,6 @@ const Map = ({
       });
   }, [JSON.stringify(markers)]);
 
-  // Fit bounds to show everything
   useEffect(() => {
     if (!mapRef.current) return;
     const all = [];
@@ -90,7 +64,7 @@ const Map = ({
   const memoMarkers = useMemo(() => markers.filter(Boolean), [markers]);
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full rounded-xl overflow-hidden shadow-lg">
       <MapContainer
         center={center}
         zoom={zoom}
@@ -107,7 +81,7 @@ const Map = ({
 
         {memoMarkers.map((marker, idx) => (
           <Marker key={idx} position={[marker.lat, marker.lng]}>
-            <Popup>
+            <Popup className="rounded-lg shadow">
               <div style={{ maxWidth: 200 }}>
                 <div style={{ fontWeight: 600 }}>{marker.text || `Point ${idx + 1}`}</div>
                 {marker.text && <div style={{ fontSize: 12, color: '#666' }}>{marker.text}</div>}
@@ -121,9 +95,8 @@ const Map = ({
         <ZoomControl position="bottomright" />
       </MapContainer>
 
-      {/* Small distance/ETA badge */}
       {distanceKm != null && durationMin != null && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white px-4 py-2 rounded-lg shadow-md text-sm font-medium">
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white px-4 py-2 rounded-lg shadow-md text-sm font-medium border border-gray-200">
           🚗 {distanceKm.toFixed(1)} km • ⏱ {Math.ceil(durationMin)} min
         </div>
       )}
@@ -131,4 +104,4 @@ const Map = ({
   );
 };
 
-export default Map;
+export default Map; // Added this line to export the component

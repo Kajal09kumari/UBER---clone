@@ -1,85 +1,80 @@
-import React, { useState,useContext } from 'react'
-import { Link } from 'react-router-dom'
-import appLogo2 from '../assets/app logo2.png'
-import { UserDataContext } from '../context/UserContext'
-import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
-import { set } from 'mongoose'
+import React, { useState, useContext } from 'react';
+import { Link } from 'react-router-dom';
+import appLogo2 from '../assets/app logo2.png';
+import { UserDataContext } from '../context/UserContext';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const UserLogin = () => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [userData, setUserData] = useState({})
-  const { user, setUser } = useContext(UserDataContext)
-  const navigate= useNavigate()
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const { user, setUser } = useContext(UserDataContext);
+  const navigate = useNavigate();
+
   const submitHandler = async (e) => {
     e.preventDefault();
-    const userData = {
-      email: email,
-      password: password
-    }
-    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`, userData)
+    const userData = { email, password };
+    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`, userData);
     if (response.status === 200) {
-      const data = response.data
-      setUser(data.user)
-      localStorage.setItem('token', data.token)
-      navigate('/home')
+      const data = response.data;
+      setUser(data.user);
+      localStorage.setItem('token', data.token);
+      navigate('/home');
     }
-    setEmail('')
-    setPassword('')
-  }
+    setEmail('');
+    setPassword('');
+  };
+
   return (
-    <div className="h-screen p-6 flex flex-col justify-between bg-white">
-      {/* Logo at Top-Left */}
-      <div>
-        <img src={appLogo2} alt="Safar Logo" className="w-24 h-24 mb-1" />
-
-        <form onSubmit={(e) => submitHandler(e)} className="max-w-md mx-auto">
-          <h3 className="text-lg font-semibold mb-2">What's your email</h3>
-          <input
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="bg-[#eeeeee] mb-6 rounded px-4 py-2 border w-full text-lg placeholder:text-base"
-            type="email"
-            placeholder="email@example.com"
-          />
-
-          <h3 className="text-lg font-semibold mb-2">Enter Password</h3>
-          <input
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="bg-[#eeeeee] mb-6 rounded px-4 py-2 border w-full text-lg placeholder:text-base"
-            type="password"
-            placeholder="password"
-          />
-
+    <div className="h-screen flex flex-col justify-center items-center bg-gray-50 p-6">
+      <img src={appLogo2} alt="Safar Logo" className="w-32 mb-8" />
+      <form onSubmit={submitHandler} className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
+        <h3 className="text-xl font-semibold mb-6 text-gray-800">User Login</h3>
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium mb-2 text-gray-600">Email</label>
+            <input
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 focus:ring-2 focus:ring-[#138808] focus:border-transparent"
+              type="email"
+              placeholder="email@example.com"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2 text-gray-600">Password</label>
+            <input
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 focus:ring-2 focus:ring-[#138808] focus:border-transparent"
+              type="password"
+              placeholder="password"
+            />
+          </div>
           <button
             type="submit"
-            className="bg-[#111] text-white font-semibold mb-4 rounded px-4 py-2 w-full text-lg"
+            className="w-full bg-[#138808] text-white font-semibold py-3 rounded-lg hover:bg-green-700 transition-colors"
           >
             Login
           </button>
-
-          <p className="text-center text-base">
+          <p className="text-center text-sm text-gray-600">
             New here?{' '}
-            <Link to="/signup" className="text-blue-600 hover:underline">
+            <Link to="/signup" className="text-[#138808] hover:underline">
               Create new Account
             </Link>
           </p>
-        </form>
-      </div>
-
-      {/* Sign in as Captain Button */}
-      <div>
-        <Link to="/captainlogin" 
-          className="bg-[#10b461] flex items-center justify-center text-white font-semibold rounded px-4 py-2 w-full text-lg">
-          Sign in as Captain
-        </Link>
-      </div>
+        </div>
+      </form>
+      <Link
+        to="/captainlogin"
+        className="mt-6 w-full max-w-md bg-[#10b461] text-white font-semibold py-3 rounded-lg text-center hover:bg-green-600 transition-colors"
+      >
+        Sign in as Captain
+      </Link>
     </div>
-  )
-}
+  );
+};
 
-export default UserLogin
+export default UserLogin;
