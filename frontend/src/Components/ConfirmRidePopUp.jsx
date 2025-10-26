@@ -73,4 +73,6 @@ const ConfirmRidePopUp = (props) => {
       </div>
     </div>
   )
-}
+};
+
+export default ConfirmRidePopUp;

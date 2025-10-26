@@ -68,5 +68,7 @@ const RidePopUp = (props) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
+
+export default RidePopUp;

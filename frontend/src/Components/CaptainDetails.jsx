@@ -31,4 +31,6 @@ const CaptainDetails = () => {
       </div>        
     </div>
   )
-}
+};
+
+export default CaptainDetails;

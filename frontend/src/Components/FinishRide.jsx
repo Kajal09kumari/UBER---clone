@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const FinishRide = (props) => {
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg relative">
@@ -59,4 +61,6 @@ const FinishRide = (props) => {
       </div>
     </div>
   )
-}
+};
+
+export default FinishRide;
