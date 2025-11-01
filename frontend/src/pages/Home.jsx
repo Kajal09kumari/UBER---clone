@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import appLogo2 from '../assets/app logo2.png';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
@@ -11,6 +11,7 @@ import LookingForDriver from '../Components/LookingForDriver';
 import WaitingForDriver from '../Components/WaitingForDriver';
 import Map from '../Components/Map';
 import { searchLocation } from '../utils/geocoding';
+import { useSocket } from '../context/SocketContext';
 
 const Home = () => {
   const [pickupText, setPickupText] = useState(''); // readable address shown in input
@@ -29,6 +30,13 @@ const Home = () => {
   const [confirmRidePanel, setConfirmRidePanel] = useState(false);
   const [vehicleFound, setVehicleFound] = useState(false);
   const [waitingForDriver, setWaitingForDriver] = useState(false);
+
+  // Socket.io states
+  const { socket, isConnected, on, off, emit } = useSocket();
+  const [driverLocation, setDriverLocation] = useState(null);
+  const [acceptedRide, setAcceptedRide] = useState(null);
+  const [selectedVehicleType, setSelectedVehicleType] = useState(null);
+
     // Add a function to update the query in the parent component
   const updateQuery = (text) => {
     if (activeField === 'pickup') {
@@ -43,6 +51,94 @@ const Home = () => {
     pickup: null, // { lat, lng, text }
     destination: null,
   });
+
+  // Setup Socket.io listeners for driver location updates
+  useEffect(() => {
+    if (!isConnected) return;
+
+    // Listen for ride acceptance
+    const handleRideAccepted = (rideData) => {
+      console.log('Ride accepted by captain:', rideData);
+      setAcceptedRide(rideData);
+      setVehicleFound(false);
+      setWaitingForDriver(true);
+      
+      // Set initial driver location
+      if (rideData.captain?.location) {
+        setDriverLocation(rideData.captain.location);
+      }
+
+      // Optional: Show notification
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('Driver Found!', {
+          body: `${rideData.captain?.fullname?.firstname || 'Your driver'} is on the way!`,
+          icon: '/app-icon.png'
+        })
+      }
+    };
+
+    // Listen for driver location updates
+    const handleDriverLocationUpdate = (locationData) => {
+      console.log('Driver location update:', locationData);
+      setDriverLocation(locationData.location);
+    };
+
+    on('ride:accepted', handleRideAccepted);
+    on('driver:location-update', handleDriverLocationUpdate);
+
+    // Cleanup listeners on unmount
+    return () => {
+      off('ride:accepted', handleRideAccepted);
+      off('driver:location-update', handleDriverLocationUpdate);
+    };
+  }, [isConnected, on, off]);
+
+  // Request ride function
+  const requestRide = (vehicleType) => {
+    if (!selectedLocations.pickup || !selectedLocations.destination) {
+      alert('Please select both pickup and destination locations');
+      return;
+    }
+
+    setSelectedVehicleType(vehicleType);
+    
+    // Emit ride request to server
+    emit('user:request-ride', {
+      pickup: {
+        lat: selectedLocations.pickup.lat,
+        lng: selectedLocations.pickup.lng,
+        address: pickupText
+      },
+      destination: {
+        lat: selectedLocations.destination.lat,
+        lng: selectedLocations.destination.lng,
+        address: destinationText
+      },
+      vehicleType: vehicleType
+    });
+
+    // Show looking for driver UI
+    setVehiclePanel(false);
+    setConfirmRidePanel(false);
+    setVehicleFound(true);
+
+    console.log('Ride requested:', vehicleType);
+  };
+
+  // Cancel ride function
+  const cancelRide = () => {
+    if (acceptedRide) {
+      emit('user:cancel-ride', {
+        rideId: acceptedRide.rideId
+      });
+    }
+    
+    // Reset all states
+    setVehicleFound(false);
+    setWaitingForDriver(false);
+    setAcceptedRide(null);
+    setDriverLocation(null);
+  };
 
   // GSAP animation hooks (unchanged behaviour)
   useGSAP(() => {
@@ -165,12 +261,20 @@ const Home = () => {
 
   return (
     <div className="h-screen flex flex-col">
+      {/* Socket Connection Status Indicator */}
+      {!isConnected && (
+        <div className='fixed top-2 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-white px-4 py-2 rounded-md z-50 text-sm'>
+          Connecting to server...
+        </div>
+      )}
+
       {/* Top 4/5 → Map */}
       <div className="flex-[4] relative">
         <Map
           markers={[
             selectedLocations.pickup && { ...selectedLocations.pickup, text: 'Pickup' },
             selectedLocations.destination && { ...selectedLocations.destination, text: 'Destination' },
+            driverLocation && { ...driverLocation, text: 'Driver', isDriver: true },
           ].filter(Boolean)}
           onLocationSelect={(latlng) => {
             // map clicks select pickup first then destination
@@ -274,6 +378,7 @@ const Home = () => {
           setConfirmRidePanel={setConfirmRidePanel}
           setVehiclePanel={setVehiclePanel}
           selectedLocations={selectedLocations}
+          onRequestRide={requestRide}
         />
       </div>
 
@@ -284,6 +389,8 @@ const Home = () => {
         <ConfirmRide
           setConfirmRidePanel={setConfirmRidePanel}
           setVehicleFound={setVehicleFound}
+          selectedLocations={selectedLocations}
+          onRequestRide={requestRide}
         />
       </div>
 
@@ -291,14 +398,22 @@ const Home = () => {
         ref={vehicleFoundRef}
         className="fixed w-full z-20 bottom-0 translate-y-full bg-white px-3 py-6 pt-12"
       >
-        <LookingForDriver setVehicleFound={setVehicleFound} />
+        <LookingForDriver 
+          setVehicleFound={setVehicleFound}
+          onCancel={cancelRide}
+        />
       </div>
 
       <div
         ref={waitingForDriverRef}
         className="fixed w-full z-20 bottom-0 translate-y-full bg-white px-3 py-6 pt-12"
       >
-        <WaitingForDriver setWaitingForDriver={setWaitingForDriver} />
+        <WaitingForDriver 
+          setWaitingForDriver={setWaitingForDriver}
+          driverLocation={driverLocation}
+          acceptedRide={acceptedRide}
+          onCancel={cancelRide}
+        />
       </div>
     </div>
   );
