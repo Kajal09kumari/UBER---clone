@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect, useContext } from 'react';
 import appLogo2 from '../assets/app logo2.png';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
@@ -11,6 +11,8 @@ import LookingForDriver from '../Components/LookingForDriver';
 import WaitingForDriver from '../Components/WaitingForDriver';
 import Map from '../Components/Map';
 import { searchLocation } from '../utils/geocoding';
+import { useSocket } from '../context/SocketContext';
+import { UserDataContext } from '../context/UserContext';
 
 const Home = () => {
   const [pickupText, setPickupText] = useState(''); // readable address shown in input
@@ -29,6 +31,91 @@ const Home = () => {
   const [confirmRidePanel, setConfirmRidePanel] = useState(false);
   const [vehicleFound, setVehicleFound] = useState(false);
   const [waitingForDriver, setWaitingForDriver] = useState(false);
+  
+  // Socket.io and real-time tracking
+  const { socket, connected, joinRoom } = useSocket();
+  const { user } = useContext(UserDataContext);
+  const [captainLocation, setCaptainLocation] = useState(null);
+  const [acceptedRide, setAcceptedRide] = useState(null);
+
+  // Join socket room when user is available
+  useEffect(() => {
+    if (user && user._id && connected) {
+      joinRoom(user._id, 'user');
+    }
+  }, [user, connected, joinRoom]);
+
+  // Listen for ride acceptance and captain location updates
+  useEffect(() => {
+    if (!socket || !connected) return;
+
+    const handleRideAccepted = (rideData) => {
+      console.log('Ride accepted:', rideData);
+      setAcceptedRide(rideData);
+      setVehicleFound(true);
+      setWaitingForDriver(true);
+      
+      // Show notification
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('Ride Accepted!', {
+          body: `Driver ${rideData.captain.fullname.firstname} is on the way`,
+          icon: '/app-icon.png'
+        });
+      }
+    };
+
+    const handleCaptainLocationUpdate = (data) => {
+      console.log('Captain location update:', data);
+      // Only update if this is the captain assigned to user's ride
+      if (acceptedRide && data.captainId === acceptedRide.captain._id) {
+        setCaptainLocation(data.location);
+      }
+    };
+
+    const handleRideStarted = (rideData) => {
+      console.log('Ride started:', rideData);
+      // Update UI to show ride is ongoing
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('Ride Started', {
+          body: 'Your ride has started. Have a safe journey!',
+          icon: '/app-icon.png'
+        });
+      }
+    };
+
+    const handleRideCompleted = (rideData) => {
+      console.log('Ride completed:', rideData);
+      setWaitingForDriver(false);
+      setVehicleFound(false);
+      setAcceptedRide(null);
+      setCaptainLocation(null);
+      
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('Ride Completed', {
+          body: `Fare: ₹${rideData.fare}. Thank you for riding with us!`,
+          icon: '/app-icon.png'
+        });
+      }
+    };
+
+    socket.on('ride-accepted', handleRideAccepted);
+    socket.on('captain-location-update', handleCaptainLocationUpdate);
+    socket.on('ride-started', handleRideStarted);
+    socket.on('ride-completed', handleRideCompleted);
+
+    // Request notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    return () => {
+      socket.off('ride-accepted', handleRideAccepted);
+      socket.off('captain-location-update', handleCaptainLocationUpdate);
+      socket.off('ride-started', handleRideStarted);
+      socket.off('ride-completed', handleRideCompleted);
+    };
+  }, [socket, connected, acceptedRide]);
+
     // Add a function to update the query in the parent component
   const updateQuery = (text) => {
     if (activeField === 'pickup') {
@@ -171,6 +258,7 @@ const Home = () => {
           markers={[
             selectedLocations.pickup && { ...selectedLocations.pickup, text: 'Pickup' },
             selectedLocations.destination && { ...selectedLocations.destination, text: 'Destination' },
+            captainLocation && { ...captainLocation, text: 'Driver Location', icon: 'car' },
           ].filter(Boolean)}
           onLocationSelect={(latlng) => {
             // map clicks select pickup first then destination
@@ -194,6 +282,9 @@ const Home = () => {
           <div className="absolute top-0 left-0 w-full p-3 flex items-center justify-between z-20">
             <img src={appLogo2} alt="Safar Logo" className="w-24" />
             <div className="flex items-center gap-2">
+              {/* Connection status indicator */}
+              <div className={`h-2 w-2 rounded-full ${connected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+              
               <button
                 onClick={useMyLocation}
                 className="px-3 py-1 text-sm bg-white border rounded-md"
