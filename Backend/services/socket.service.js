@@ -36,6 +36,17 @@ function initializeSocket(server) {
             socket.join('available-captains'); // Join a room for all available captains
         });
 
+        // User requests nearby captains
+        socket.on('request:nearby-captains', (data) => {
+            console.log('Request for nearby captains:', data);
+            // Get all captain locations (in real app, filter by proximity)
+            const nearbyCaptains = Array.from(captainLocations.entries()).map(([captainId, location]) => ({
+                captainId,
+                location
+            }));
+            socket.emit('captains:nearby', nearbyCaptains);
+        });
+
         // Captain updates their location
         socket.on('update:location', (data) => {
             const { captainId, location } = data;

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect, useContext } from 'react';
 import appLogo2 from '../assets/app logo2.png';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
@@ -11,12 +11,18 @@ import LookingForDriver from '../Components/LookingForDriver';
 import WaitingForDriver from '../Components/WaitingForDriver';
 import Map from '../Components/Map';
 import { searchLocation } from '../utils/geocoding';
+import { useSocket } from '../context/SocketContext';
+import { UserDataContext } from '../context/UserContext';
+import axios from 'axios';
 
 const Home = () => {
   const [pickupText, setPickupText] = useState(''); // readable address shown in input
   const [destinationText, setDestinationText] = useState('');
   const [panelOpen, setPanelOpen] = useState(false);
   const [activeField, setActiveField] = useState(null); // 'pickup' | 'destination' or null
+  const [captainLocations, setCaptainLocations] = useState([]); // Real-time captain locations
+  const { socket, isConnected } = useSocket();
+  const { user } = useContext(UserDataContext);
 
   const panelCloseRef = useRef(null);
   const panelRef = useRef(null);
@@ -43,6 +49,35 @@ const Home = () => {
     pickup: null, // { lat, lng, text }
     destination: null,
   });
+
+  // Socket.io: Listen for nearby captain locations
+  useEffect(() => {
+    if (!socket || !isConnected) return;
+
+    // Request nearby captain locations periodically
+    const fetchNearbyCaptains = () => {
+      if (selectedLocations.pickup) {
+        socket.emit('request:nearby-captains', {
+          location: selectedLocations.pickup
+        });
+      }
+    };
+
+    // Listen for captain location updates
+    socket.on('captains:nearby', (captains) => {
+      console.log('Nearby captains:', captains);
+      setCaptainLocations(captains);
+    });
+
+    // Fetch initially and then every 10 seconds
+    fetchNearbyCaptains();
+    const interval = setInterval(fetchNearbyCaptains, 10000);
+
+    return () => {
+      socket.off('captains:nearby');
+      clearInterval(interval);
+    };
+  }, [socket, isConnected, selectedLocations.pickup]);
 
   // GSAP animation hooks (unchanged behaviour)
   useGSAP(() => {
@@ -171,6 +206,12 @@ const Home = () => {
           markers={[
             selectedLocations.pickup && { ...selectedLocations.pickup, text: 'Pickup' },
             selectedLocations.destination && { ...selectedLocations.destination, text: 'Destination' },
+            ...captainLocations.map(captain => ({
+              lat: captain.location.lat,
+              lng: captain.location.lng,
+              text: 'Captain',
+              isCaptain: true
+            }))
           ].filter(Boolean)}
           onLocationSelect={(latlng) => {
             // map clicks select pickup first then destination
