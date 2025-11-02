@@ -115,7 +115,6 @@ The project follows a **client–server architecture**:
 ---  
 
 📘 API Overview
----
 <img width="828" height="350" alt="Screenshot 2025-10-21 195855" src="https://github.com/user-attachments/assets/ca204667-ae3e-4064-950e-1b8bf6b7694c" />
 
 
@@ -153,6 +152,40 @@ Our implementation highlights:
  - Real-time map functionality using open-source mapping tools
 
 This system demonstrates a realistic ride-hailing experience and can serve as a foundation for further innovations in mobility tech.
+
+---
+## 🔌 Real-time with Socket.io
+
+Socket.io is configured for live ride updates.
+
+- Server starts Socket.io on the same port as the backend (default 4000 or PORT)
+- Frontend connects to `VITE_SOCKET_URL` or falls back to `VITE_BASE_URL`
+
+Environment variables:
+
+```
+# frontend/.env
+VITE_BASE_URL=http://localhost:4000
+VITE_SOCKET_URL=http://localhost:4000
+
+# Backend/.env
+CLIENT_ORIGIN=http://localhost:5173
+```
+
+Key events:
+
+- captain:online -> payload { token, location? } registers the driver and joins drivers:online room
+- ride:new -> server emits to drivers:online with { rideId, pickup, dropoff, user }
+- captain:location -> payload { token, lat, lng, rideId? } updates DB and broadcasts to ride room
+- ride:join -> payload { rideId } lets user/captain join a specific room for location streaming
+- driver:location -> user-side event with { lat, lng, rideId }
+
+Minimal REST to trigger broadcast:
+
+- POST /users/request-ride (auth) body: { pickup: {lat,lng}, dropoff: {lat,lng} }
+   - response: { rideId, status: "broadcasted" }
+
+Note: Nearby-driver filtering is simplified to all online drivers; add geo queries on captain.location to refine.
 
 ---
 ## 📜 License

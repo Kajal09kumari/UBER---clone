@@ -2,6 +2,8 @@ const userModel = require('../models/user.model');
 const userService = require('../services/user.service');
 const { validationResult } = require('express-validator');
 const blacklistTokenModel = require('../models/blacklistToken.model');
+const { getIO } = require('../socket');
+const { Types } = require('mongoose');
 module.exports.registerUser = async (req, res, next) => {
     const errors = validationResult(req);
     // console.log(req.body);
@@ -65,4 +67,34 @@ module.exports.logoutUser = async (req, res, next) => {
     const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
     await blacklistTokenModel.create({ token });
     res.status(200).json({ message: 'Logged out successfully' });
+}
+
+// Create a simple ride request and broadcast to available captains
+// body: { pickup: {lat, lng, address?}, dropoff: {lat, lng, address?} }
+module.exports.requestRide = async (req, res, next) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const { pickup, dropoff } = req.body;
+        const rideId = new Types.ObjectId().toString();
+
+        // Broadcast to all online drivers for now; in production filter nearby by geo query
+        const io = getIO();
+        io.to('drivers:online').emit('ride:new', {
+            rideId,
+            pickup,
+            dropoff,
+            user: {
+                _id: req.user._id,
+                name: `${req.user.fullname?.firstname || ''} ${req.user.fullname?.lastname || ''}`.trim(),
+            },
+        });
+
+        return res.status(200).json({ rideId, status: 'broadcasted' });
+    } catch (err) {
+        return res.status(500).json({ message: err.message || 'Failed to request ride' });
+    }
 }

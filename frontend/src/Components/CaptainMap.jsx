@@ -6,6 +6,7 @@ import { Icon, LatLngBounds, divIcon } from 'leaflet';
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import socket from '../utils/socket';
 
 // Fix default marker icons
 delete Icon.Default.prototype._getIconUrl;
@@ -162,6 +163,16 @@ const CaptainMap = ({
       }
     };
   }, []);
+
+  // Emit captain location to server via Socket.IO
+  useEffect(() => {
+    if (!captainLocation) return;
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    const [lat, lng] = captainLocation;
+    const rideId = localStorage.getItem('rideId') || undefined;
+    socket.emit('captain:location', { token, lat, lng, rideId });
+  }, [captainLocation?.[0], captainLocation?.[1]]);
 
   // Fetch route when pickup and dropoff are available
   useEffect(() => {

@@ -28,5 +28,18 @@ router.post(
 router.get('/profile', authUser, userController.getUserProfile); 
 router.get('/logout', authUser, userController.logoutUser);      
 
+// Request a ride -> broadcasts to nearby/online captains
+router.post(
+  '/request-ride',
+  authUser,
+  [
+    body('pickup.lat').isFloat({ min: -90, max: 90 }).withMessage('pickup.lat must be a valid latitude'),
+    body('pickup.lng').isFloat({ min: -180, max: 180 }).withMessage('pickup.lng must be a valid longitude'),
+    body('dropoff.lat').isFloat({ min: -90, max: 90 }).withMessage('dropoff.lat must be a valid latitude'),
+    body('dropoff.lng').isFloat({ min: -180, max: 180 }).withMessage('dropoff.lng must be a valid longitude'),
+  ],
+  userController.requestRide
+);
+
 module.exports = router;
 

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import appLogo3 from '../assets/app logo3.png'
 import CaptainDetails from '../Components/CaptainDetails'
@@ -7,13 +7,35 @@ import ConfirmRidePopUp from '../Components/ConfirmRidePopUp'
 import CaptainMap from '../Components/CaptainMap'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
+import socket from '../utils/socket'
 
 const CaptainHome = () => {
-  const [ridePopUpPanel, setRidePopUpPanel] = useState(true)
+  const [ridePopUpPanel, setRidePopUpPanel] = useState(false)
   const ridePopUpPanelRef = useRef(null)
 
   const [confirmRidePopUpPanel, setConfirmRidePopUpPanel] = useState(false)
   const confirmRidePopUpPanelRef = useRef(null)
+
+  // Connect to Socket.IO as captain and listen for new ride requests
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // optionally include initial location if available; CaptainMap will stream updates
+      socket.emit('captain:online', { token });
+    }
+
+    const onRideNew = (payload) => {
+      // Open the ride popup to show incoming ride
+      console.log('New ride request:', payload);
+      setRidePopUpPanel(true);
+    };
+
+    socket.on('ride:new', onRideNew);
+
+    return () => {
+      socket.off('ride:new', onRideNew);
+    };
+  }, [])
 
   // Animate Ride Popup
   useGSAP(() => {
