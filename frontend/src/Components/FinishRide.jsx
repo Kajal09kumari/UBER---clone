@@ -9,6 +9,10 @@ const FinishRide = (props) => {
                        localStorage.getItem('fareBase') || 
                        '199';
   
+  // Get pickup and dropoff addresses from localStorage
+  const pickupAddress = localStorage.getItem('pickupAddress') || 'Pickup Location';
+  const dropoffAddress = localStorage.getItem('dropoffAddress') || 'Dropoff Location';
+  
   return (
     <div>
       {/* Close Button */}
@@ -41,8 +45,8 @@ const FinishRide = (props) => {
           <div className='flex items-center gap-5 p-3 border-b-2'>
             <i className="text-lg ri-map-pin-user-fill"></i>
             <div>
-              <h3 className='text-lg font-medium'>562/11-A</h3>
-              <p className='text-sm -mt-1 text-gray-600'>Kankariya Tablab, Delhi</p>
+              <h3 className='text-lg font-medium'>Pickup</h3>
+              <p className='text-sm -mt-1 text-gray-600'>{pickupAddress}</p>
             </div>
           </div>
 
@@ -50,8 +54,8 @@ const FinishRide = (props) => {
           <div className='flex items-center gap-5 p-3 border-b-2'>
             <i className="text-lg ri-map-pin-2-fill"></i>
             <div>
-              <h3 className='text-lg font-medium'>562/11-A</h3>
-              <p className='text-sm -mt-1 text-gray-600'>Kankariya Tablab, Delhi</p>
+              <h3 className='text-lg font-medium'>Destination</h3>
+              <p className='text-sm -mt-1 text-gray-600'>{dropoffAddress}</p>
             </div>
           </div>
 

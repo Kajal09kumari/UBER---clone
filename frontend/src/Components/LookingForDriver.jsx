@@ -1,4 +1,6 @@
 import React from 'react'
+import { motion } from 'framer-motion'
+import LoadingSpinner from './LoadingSpinner'
 
 const LookingForDriver = (props) => {
   // Get dynamic fare from localStorage
@@ -7,55 +9,106 @@ const LookingForDriver = (props) => {
                        localStorage.getItem('fareBase') || 
                        '199';
   
+  // Get pickup and dropoff addresses from localStorage
+  const pickupAddress = localStorage.getItem('pickupAddress') || 'Pickup Location';
+  const dropoffAddress = localStorage.getItem('dropoffAddress') || 'Dropoff Location';
+  
   return (
     <div>
-      <h5
-        className='p-1 text-center w-[93%] absolute top-0'
+      <motion.h5
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        className='p-1 text-center w-[93%] absolute top-0 cursor-pointer'
         onClick={() => {props.setVehicleFound(false)}}
       >
         <i className="text-3xl text-gray-400 ri-arrow-down-wide-line"></i>
-      </h5>
+      </motion.h5>
 
-      <h3 className='text-2xl font-semibold mb-5 mt-0'>Looking for a Driver</h3>
-
-      <div className='flex flex-col gap-2  items-center'>
-        <img
-          className='h-24'
-          src='https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_552,w_552/v1555367310/assets/30/51e602-10bb-4e65-b122-e394d80a9c47/original/Final_UberX.png'
-          alt=' '
-        />
-
-        <div className='w-full mt-5'>
-          {/* Pickup address */}
-          <div className='flex items-center gap-5 p-3 border-b-2'>
-            <i className="text-lg ri-map-pin-user-fill"></i>
-            <div>
-              <h3 className='text-lg font-medium'>562/11-A</h3>
-              <p className='text-sm -mt-1 text-gray-600'>Kankariya Tablab, Delhi</p>
-            </div>
-          </div>
-
-          {/* Destination address */}
-          <div className='flex items-center gap-5 p-3 border-b-2'>
-            <i className="text-lg ri-map-pin-2-fill"></i>
-            <div>
-              <h3 className='text-lg font-medium'>562/11-A</h3>
-              <p className='text-sm -mt-1 text-gray-600'>Kankariya Tablab, Delhi</p>
-            </div>
-          </div>
-
-          {/* Price */}
-          <div className='flex items-center gap-5 p-3'>
-            <i className="text-lg ri-currency-line"></i>
-            <div>
-              <h3 className='text-lg font-medium'>₹{selectedFare}</h3>
-              <p className='text-sm -mt-1 text-gray-600'>Cash</p>
-            </div>
-          </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="flex items-center justify-center gap-3 mb-6">
+          <LoadingSpinner size="md" />
+          <h3 className='text-2xl font-bold'>Looking for a Driver</h3>
         </div>
 
+        <motion.div
+          animate={{ 
+            scale: [1, 1.05, 1],
+          }}
+          transition={{ 
+            repeat: Infinity, 
+            duration: 2,
+            ease: "easeInOut"
+          }}
+          className="bg-gradient-to-br from-primary-50 to-accent-green-50 p-4 rounded-2xl mb-6 border border-primary-200"
+        >
+          <p className="text-center text-gray-700 font-medium">
+            🔍 Searching for nearby drivers...
+          </p>
+          <p className="text-center text-sm text-gray-600 mt-1">
+            This usually takes less than a minute
+          </p>
+        </motion.div>
 
-      </div>
+        <div className='flex flex-col gap-4 items-center'>
+          <motion.img
+            animate={{ 
+              y: [0, -10, 0],
+              rotate: [-2, 2, -2]
+            }}
+            transition={{ 
+              repeat: Infinity, 
+              duration: 3,
+              ease: "easeInOut"
+            }}
+            className='h-24 drop-shadow-lg'
+            src='https://www.kumho.com.au/images/car-category/passenger-updated.png'
+            alt='Vehicle'
+          />
+
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className='w-full mt-2 bg-gray-50 rounded-2xl border border-gray-200 overflow-hidden'
+          >
+            {/* Pickup address */}
+            <div className='flex items-center gap-4 p-4 border-b border-gray-200'>
+              <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
+                <i className="text-xl ri-map-pin-user-fill text-primary-600"></i>
+              </div>
+              <div className="flex-1">
+                <h3 className='text-base font-semibold text-gray-900'>Pickup</h3>
+                <p className='text-sm text-gray-600'>{pickupAddress}</p>
+              </div>
+            </div>
+
+            {/* Destination address */}
+            <div className='flex items-center gap-4 p-4 border-b border-gray-200'>
+              <div className="w-10 h-10 rounded-full bg-accent-green-100 flex items-center justify-center">
+                <i className="text-xl ri-map-pin-2-fill text-accent-green-600"></i>
+              </div>
+              <div className="flex-1">
+                <h3 className='text-base font-semibold text-gray-900'>Destination</h3>
+                <p className='text-sm text-gray-600'>{dropoffAddress}</p>
+              </div>
+            </div>
+
+            {/* Price */}
+            <div className='flex items-center gap-4 p-4'>
+              <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                <i className="text-xl ri-money-rupee-circle-fill text-yellow-600"></i>
+              </div>
+              <div className="flex-1">
+                <h3 className='text-lg font-bold text-gray-900'>₹{selectedFare}</h3>
+                <p className='text-sm text-gray-600'>Cash Payment</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </motion.div>
     </div>    
   )
 }

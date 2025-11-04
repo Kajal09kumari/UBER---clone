@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import appLogo3 from '../assets/app logo3.png'
 import CaptainDetails from '../Components/CaptainDetails'
 import RidePopUp from '../Components/RidePopUp'
@@ -110,22 +111,49 @@ const CaptainHome = () => {
   }, [confirmRidePopUpPanel])
 
   return (
-    <div className='h-screen flex flex-col overflow-hidden'>
+    <div className='h-screen flex flex-col overflow-hidden bg-gray-50'>
       {/* Top bar */}
-      <div className='fixed top-0 left-0 w-full p-3 flex items-center justify-between z-10 -mt-2'>
-        <img src={appLogo3} alt='Safar Logo' className='w-24' />
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className='fixed top-0 left-0 w-full p-4 flex items-center justify-between z-10 bg-gradient-to-b from-white via-white to-transparent'
+      >
+        <motion.img 
+          whileHover={{ scale: 1.05 }}
+          src={appLogo3} 
+          alt='Safar Captain Logo' 
+          className='w-24 drop-shadow-lg' 
+        />
 
-        {/* Logout icon */}
-        <Link
-          to='/captain/logout'
-          className='h-8 w-8 flex items-center justify-center rounded-md border border-gray-300 bg-white'
-        >
-          <i className='text-lg ri-logout-box-r-line'></i>
-        </Link>
-      </div>
+        {/* Status badge and logout */}
+        <div className="flex items-center gap-3">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: 'spring' }}
+            className="px-3 py-1.5 bg-green-100 border border-green-300 rounded-full flex items-center gap-2"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            <span className="text-sm font-medium text-green-700">Online</span>
+          </motion.div>
+
+          <Link to='/captain/logout'>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className='h-10 w-10 flex items-center justify-center rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md hover:bg-red-50 hover:border-red-200 transition-all group'
+            >
+              <i className='text-xl ri-logout-box-r-line text-gray-600 group-hover:text-red-600 transition-colors'></i>
+            </motion.button>
+          </Link>
+        </div>
+      </motion.div>
 
       {/* OpenStreetMap - Captain's current location */}
-      <div className='h-3/5'>
+      <div className='h-3/5 relative'>
         <CaptainMap 
           pickupLocation={acceptedRide?.pickup ? {
             lat: acceptedRide.pickup.lat,
@@ -143,31 +171,36 @@ const CaptainHome = () => {
       </div>
 
       {/* Bottom card */}
-      <div className='h-2/5 bg-white rounded-t-xl shadow-md p-4 flex flex-col'>
+      <motion.div 
+        initial={{ y: 100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        className='h-2/5 bg-white rounded-t-3xl shadow-2xl p-6 flex flex-col border-t border-gray-100'
+      >
         <CaptainDetails />
-      </div>
+      </motion.div>
 
       {/* Ride Popup */}
-      <div
+      <motion.div
         ref={ridePopUpPanelRef}
-        className='fixed w-full z-10 bottom-0 bg-white px-3 py-10 translate-y-full rounded-t-xl shadow-lg'
+        className='fixed w-full z-10 bottom-0 bg-white px-3 py-10 translate-y-full rounded-t-3xl shadow-2xl'
       >
         <RidePopUp
           rideData={currentRide}
           setRidePopUpPanel={setRidePopUpPanel}
           setConfirmRidePopUpPanel={setConfirmRidePopUpPanel}
         />
-      </div>
+      </motion.div>
 
       {/* Confirm Ride Popup */}
-      <div
+      <motion.div
         ref={confirmRidePopUpPanelRef}
-        className='fixed w-full h-screen z-10 bottom-0 bg-white px-3 py-10 translate-y-full rounded-t-xl shadow-lg'
+        className='fixed w-full h-screen z-10 bottom-0 bg-white px-3 py-10 translate-y-full rounded-t-3xl shadow-2xl'
       >
         <ConfirmRidePopUp
           setConfirmRidePopUpPanel={setConfirmRidePopUpPanel}
         />
-      </div>
+      </motion.div>
     </div>
   )
 }

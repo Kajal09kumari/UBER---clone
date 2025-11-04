@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, useContext } from 'react';
+import { motion } from 'framer-motion';
 import appLogo2 from '../assets/app logo2.png';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
@@ -227,69 +228,102 @@ const Home = () => {
 
         {/* Logo + top controls overlay */}
         {!panelOpen && (
-          <div className="absolute top-0 left-0 w-full p-3 flex items-center justify-between z-20">
-            <img src={appLogo2} alt="Safar Logo" className="w-24" />
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="absolute top-0 left-0 w-full p-4 flex items-center justify-between z-20"
+          >
+            <motion.img 
+              whileHover={{ scale: 1.05 }}
+              src={appLogo2} 
+              alt="Safar Logo" 
+              className="w-24 drop-shadow-lg" 
+            />
             <div className="flex items-center gap-2">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={useMyLocation}
-                className="px-3 py-1 text-sm bg-white border rounded-md"
+                className="px-4 py-2 text-sm bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow flex items-center gap-2 font-medium"
               >
+                <i className="ri-map-pin-user-line text-primary-600"></i>
                 Use my location
-              </button>
-              <Link
-                to="/login"
-                className="h-8 w-8 flex items-center justify-center rounded-md border border-gray-300 bg-white"
-              >
-                <i className="text-lg ri-logout-box-r-line"></i>
+              </motion.button>
+              <Link to="/login">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="h-10 w-10 flex items-center justify-center rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md hover:bg-red-50 hover:border-red-200 transition-all group"
+                >
+                  <i className="text-xl ri-logout-box-r-line text-gray-600 group-hover:text-red-600 transition-colors"></i>
+                </motion.button>
               </Link>
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
 
       {/* Bottom 1/5 → compact search row */}
-      <div className="flex-[1] bg-white p-5 relative">
-        <h5
+      <motion.div 
+        initial={{ y: 100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="flex-[1] bg-white rounded-t-3xl shadow-xl p-5 relative border-t border-gray-100"
+      >
+        <motion.h5
           ref={panelCloseRef}
           onClick={() => setPanelOpen(false)}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
           className="absolute opacity-0 top-6 right-6 text-2xl cursor-pointer"
         >
           <i className="text-3xl text-gray-400 ri-arrow-down-wide-line"></i>
-        </h5>
+        </motion.h5>
 
-        <h4 className="text-2xl font-semibold mb-2">Find a trip</h4>
+        <div className="flex items-center gap-2 mb-4">
+          <i className="ri-route-line text-2xl text-primary-600"></i>
+          <h4 className="text-2xl font-bold text-gray-900">Find a trip</h4>
+        </div>
 
         <form onSubmit={(e) => e.preventDefault()}>
-          <div className="line absolute h-16 w-1 top-[42%] left-10 bg-gray-700 rounded-full"></div>
+          <div className="line absolute h-16 w-1 top-[45%] left-10 bg-gradient-to-b from-primary-500 to-accent-green-500 rounded-full"></div>
 
           {/* Pickup input (click to open search panel and edit) */}
-          <input
-            onClick={() => openSearchPanelFor('pickup')}
-            value={pickupText}
-            onChange={(e) => setPickupText(e.target.value)}
-            onBlur={() => forwardGeocode(pickupText, 'pickup')}
-            className="bg-[#eee] px-12 py-2 text-lg rounded-lg w-full mt-1"
-            type="text"
-            placeholder="Add a pick-up location"
-          />
+          <div className="relative mb-3">
+            <i className="ri-map-pin-line absolute left-4 top-1/2 -translate-y-1/2 text-primary-600 text-xl z-10"></i>
+            <motion.input
+              whileFocus={{ scale: 1.02 }}
+              onClick={() => openSearchPanelFor('pickup')}
+              value={pickupText}
+              onChange={(e) => setPickupText(e.target.value)}
+              onBlur={() => forwardGeocode(pickupText, 'pickup')}
+              className="bg-gray-50 px-12 py-3 text-base rounded-xl w-full border-2 border-gray-200 focus:border-primary-500 focus:bg-white transition-all outline-none"
+              type="text"
+              placeholder="Add a pick-up location"
+            />
+          </div>
 
           {/* Destination input (click to open search panel and edit) */}
-          <input
-            onClick={() => openSearchPanelFor('destination')}
-            value={destinationText}
-            onChange={(e) => setDestinationText(e.target.value)}
-            onBlur={() => forwardGeocode(destinationText, 'destination')}
-            className="bg-[#eee] px-12 py-2 text-lg rounded-lg w-full mt-1"
-            type="text"
-            placeholder="Enter your destination"
-          />
+          <div className="relative">
+            <i className="ri-map-pin-fill absolute left-4 top-1/2 -translate-y-1/2 text-accent-green-600 text-xl z-10"></i>
+            <motion.input
+              whileFocus={{ scale: 1.02 }}
+              onClick={() => openSearchPanelFor('destination')}
+              value={destinationText}
+              onChange={(e) => setDestinationText(e.target.value)}
+              onBlur={() => forwardGeocode(destinationText, 'destination')}
+              className="bg-gray-50 px-12 py-3 text-base rounded-xl w-full border-2 border-gray-200 focus:border-accent-green-500 focus:bg-white transition-all outline-none"
+              type="text"
+              placeholder="Enter your destination"
+            />
+          </div>
         </form>
-      </div>
+      </motion.div>
 
       {/* Expanded search panel (hidden by default; GSAP controls height/padding) */}
-      <div
+      <motion.div
         ref={panelRef}
-        className="h-0 bg-white transition-all duration-300 overflow-y-auto"
+        className="h-0 bg-white transition-all duration-300 overflow-y-auto rounded-t-3xl shadow-2xl"
       >
         <LocationSearchPanel
           onLocationSelect={handleLocationSelect}
@@ -299,43 +333,43 @@ const Home = () => {
           initialText={activeField === 'pickup' ? pickupText : destinationText}
           updateQuery={updateQuery}
         />
-      </div>
+      </motion.div>
 
       {/* Bottom sliding panels (vehicle, confirm, looking for driver, waiting) */}
-      <div
+      <motion.div
         ref={vehiclePanelRef}
-        className="fixed w-full z-20 bottom-0 translate-y-full bg-white px-3 py-10 pt-12"
+        className="fixed w-full z-20 bottom-0 translate-y-full bg-white px-3 py-10 pt-12 rounded-t-3xl shadow-2xl"
       >
         <VehiclePanel
           setConfirmRidePanel={setConfirmRidePanel}
           setVehiclePanel={setVehiclePanel}
           selectedLocations={selectedLocations}
         />
-      </div>
+      </motion.div>
 
-      <div
+      <motion.div
         ref={confirmRidePanelRef}
-        className="fixed w-full z-20 bottom-0 translate-y-full bg-white px-3 py-6 pt-12"
+        className="fixed w-full z-20 bottom-0 translate-y-full bg-white px-3 py-6 pt-12 rounded-t-3xl shadow-2xl"
       >
         <ConfirmRide
           setConfirmRidePanel={setConfirmRidePanel}
           setVehicleFound={setVehicleFound}
         />
-      </div>
+      </motion.div>
 
-      <div
+      <motion.div
         ref={vehicleFoundRef}
-        className="fixed w-full z-20 bottom-0 translate-y-full bg-white px-3 py-6 pt-12"
+        className="fixed w-full z-20 bottom-0 translate-y-full bg-white px-3 py-6 pt-12 rounded-t-3xl shadow-2xl"
       >
         <LookingForDriver setVehicleFound={setVehicleFound} />
-      </div>
+      </motion.div>
 
-      <div
+      <motion.div
         ref={waitingForDriverRef}
-        className="fixed w-full z-20 bottom-0 translate-y-full bg-white px-3 py-6 pt-12"
+        className="fixed w-full z-20 bottom-0 translate-y-full bg-white px-3 py-6 pt-12 rounded-t-3xl shadow-2xl"
       >
         <WaitingForDriver setWaitingForDriver={setWaitingForDriver} />
-      </div>
+      </motion.div>
     </div>
   );
 };
